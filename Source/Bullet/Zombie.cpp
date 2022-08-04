@@ -1,9 +1,12 @@
 #include "Zombie.h"
+#include "HealthComponent.h"
 
 AZombie::AZombie()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+	healthComponent->onDeath.AddDynamic(this, &AZombie::OnDeath);
 }
 
 void AZombie::BeginPlay()
@@ -24,3 +27,8 @@ void AZombie::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AZombie::OnDeath()
+{
+	onZombieDeath.Broadcast();
+	Destroy();
+}

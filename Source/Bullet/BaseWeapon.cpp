@@ -1,6 +1,7 @@
 #include "BaseWeapon.h"
 #include "HealthComponent.h"
 #include "BulletCharacter.h"
+#include <DrawDebugHelpers.h>
 
 ABaseWeapon::ABaseWeapon()
 {
@@ -39,9 +40,9 @@ void ABaseWeapon::Fire()
 
 	UAnimMontage* armsFireAnimation = owner->bIsAiming ? armsFireAnimAim : armsFireAnim;
 	owner->GetMesh()->GetAnimInstance()->Montage_Play(armsFireAnimation);
-
-	const FVector start = owner->cam->GetComponentLocation();
-	const FVector end = (owner->cam->GetForwardVector() * gunRange) + start;
+	  
+	const FVector start = owner->cam->GetSocketLocation("None");
+	const FVector end = owner->cam->GetForwardVector() * gunRange + start;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(owner);
 
@@ -54,10 +55,10 @@ void ABaseWeapon::Fire()
 	FHitResult outHit;
 	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params))
 	{
-		//if (AZombie* zombie = Cast<AZombie>(outHit.GetActor()))
-		//{
-		//	zombie->GetHealthComponent()->ApplyDamage(owner, gunDamage);
-		//}
+		if (AZombie* zombie = Cast<AZombie>(outHit.GetActor()))
+		{
+			zombie->GetHealthComponent()->ApplyDamage(owner, gunDamage);
+		}
 	}
 
 	if (fullAuto)

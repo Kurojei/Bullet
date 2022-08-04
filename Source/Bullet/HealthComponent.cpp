@@ -22,17 +22,10 @@ void UHealthComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActo
 
 void UHealthComponent::ApplyDamage(ACharacter* instigator, float amount)
 {
-	if (Cast<ABulletCharacter>(instigator))
+	health = FMath::Clamp(health - amount, 0.f, maxHealth);
+	if (health <= 0)
 	{
-		health = FMath::Clamp(health - amount, 0.f, maxHealth);
-		if (health <= 0)
-		{
-			onDeath.Broadcast();
-		}
+		onDeath.Broadcast();
 	}
 }
 
-void UHealthComponent::OnDeath(ACharacter* characterToKill)
-{
-	characterToKill->Destroy();
-}

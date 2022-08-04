@@ -15,21 +15,19 @@ public:
 	UHealthComponent();
 	void ApplyDamage(ACharacter* instigator, float amount);
 
-	virtual void OnDeath(ACharacter* characterToKill);
-
 private:
 	virtual void BeginPlay() override;
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
 	UPROPERTY(BlueprintAssignable)
-		FOnDeath onDeath;
+	FOnDeath onDeath;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		float health = 100.f;
+	float health = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-		float maxHealth = 100.f;
+	float maxHealth = 100.f;
 
 private:
 

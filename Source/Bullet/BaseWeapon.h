@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include <Animation/BlendSpace1D.h>
 #include <Sound/SoundCue.h>
+#include "Zombie.h"
 #include "BaseWeapon.generated.h"
 
 UCLASS()

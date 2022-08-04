@@ -15,8 +15,10 @@ public:
 	AZombieSpawner();
 	virtual void BeginPlay() override;
 	void SpawnZombies();
-	void OnZombieDeath();
 	void StartNewRound();
+
+	UFUNCTION()
+	void OnZombieDeath();
 
 public:	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)

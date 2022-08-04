@@ -3,7 +3,6 @@
 AZombieSpawner::AZombieSpawner()
 {
 	//How many players to determine max zombies on map etc;
-	
 }
 
 void AZombieSpawner::BeginPlay()
@@ -19,6 +18,7 @@ void AZombieSpawner::SpawnZombies()
 		{
 			AZombieSpawn* randSpawnPoint = spawnPoints[FMath::RandRange(0, spawnPoints.Num() - 1)];
 			AZombie* zombie = GetWorld()->SpawnActor<AZombie>(zombieToSpawn, randSpawnPoint->GetActorLocation(), randSpawnPoint->GetActorRotation());
+			zombie->onZombieDeath.AddDynamic(this, &AZombieSpawner::OnZombieDeath);
 			amountToSpawn--;
 			//zombie->health = zombieHealth;
 			//zombie->speed = zombieSpeed;
@@ -45,6 +45,7 @@ void AZombieSpawner::OnZombieDeath()
 
 void AZombieSpawner::StartNewRound()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 3.f, FColor::Red, TEXT("New round starting..."));
 	currentRound++;
 	//UI Broadcast round number;
 
@@ -56,8 +57,7 @@ void AZombieSpawner::StartNewRound()
 	//zombieSpeed =
 
 	float multiplier = currentRound * roundMultiplierConstant;
-	//amountToSpawn = FMath::CeilToInt(multiplier * maxZombiesOnMap);
-	amountToSpawn = multiplier * maxZombiesOnMap;
+	amountToSpawn = FMath::CeilToInt(multiplier * maxZombiesOnMap);
 
 	GetWorld()->GetTimerManager().SetTimer(zombieSpawnerTimer, this, &AZombieSpawner::SpawnZombies, timeBetweenRounds, false);
 }

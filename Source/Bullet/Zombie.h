@@ -4,6 +4,8 @@
 #include "GameFramework/Character.h"
 #include "Zombie.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnZombieDeath);
+
 UCLASS()
 class BULLET_API AZombie : public ACharacter
 {
@@ -14,7 +16,15 @@ public:
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	class UHealthComponent* GetHealthComponent() { return healthComponent; };
+
+	UFUNCTION()
+	void OnDeath();
 
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnZombieDeath onZombieDeath;
 
+private:
+	class UHealthComponent* healthComponent;
 };
