@@ -40,9 +40,6 @@ public:
 	UAnimMontage* armsFireAnim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsFireAnimAim;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimSequence* gunReloadPartial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -59,9 +56,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FName gunName = "";
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UBlendSpace1D* aiming;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UBlendSpace1D* notAiming;

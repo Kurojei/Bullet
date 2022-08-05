@@ -38,8 +38,7 @@ void ABaseWeapon::Fire()
 	owner->onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo, gunName);
 	mesh->PlayAnimation(fireAnim, false);
 
-	UAnimMontage* armsFireAnimation = owner->bIsAiming ? armsFireAnimAim : armsFireAnim;
-	owner->GetMesh()->GetAnimInstance()->Montage_Play(armsFireAnimation);
+	owner->GetMesh()->GetAnimInstance()->Montage_Play(armsFireAnim);
 	  
 	const FVector start = owner->cam->GetSocketLocation("None");
 	const FVector end = owner->cam->GetForwardVector() * gunRange + start;

@@ -119,6 +119,7 @@ void ABulletCharacter::StartSprint()
 
 void ABulletCharacter::StopSprint()
 {
+	if (bIsAiming) return;
 	if (currentWeapon->bIsReloading) return;
 	bIsSprinting = false;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
