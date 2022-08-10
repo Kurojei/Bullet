@@ -8,13 +8,13 @@ ABaseWeapon::ABaseWeapon()
 	PrimaryActorTick.bCanEverTick = true;
 	mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("gunMesh"));
 	RootComponent = mesh;
-	fireRate = 60 / fireRate;
+	roundsPerMinute = 60 / fireRate;
 }
 
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	mesh->PlayAnimation(idle, true);
+	mesh->PlayAnimation(armsIdle, true);
 }
 
 void ABaseWeapon::Tick(float DeltaTime)
@@ -29,25 +29,29 @@ void ABaseWeapon::Fire()
 		Reload();
 		return;
 	}
-	if (!bIsFiring) {
-		bIsFiring = true;
+
+	owner = Cast<ABulletCharacter>(GetOwner());
+	if (!owner->bIsFiring) {
+		owner->bIsFiring = true;
 	}
 
 	currentMagAmmo--;
-	owner = Cast<ABulletCharacter>(GetOwner());
-	owner->onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo, gunName);
-	mesh->PlayAnimation(fireAnim, false);
 
-	owner->GetMesh()->GetAnimInstance()->Montage_Play(armsFireAnim);
+	owner->onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo, gunName);
+	mesh->PlayAnimation(gunFire, false);
+
+	UAnimMontage* gunFireAnim = owner->bIsAiming ? armsFireAim : armsFire;
+	owner->GetMesh()->GetAnimInstance()->Montage_Play(gunFireAnim);
 	  
 	const FVector start = owner->cam->GetSocketLocation("None");
 	const FVector end = owner->cam->GetForwardVector() * gunRange + start;
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(owner);
 
-	//Recoil
 	owner->audioComponent->SetSound(fireSound);
 	owner->audioComponent->Play();
+
+	//Recoil
 	//Muzzle flash
 	//Shell eject
 
@@ -62,16 +66,17 @@ void ABaseWeapon::Fire()
 
 	if (fullAuto)
 	{
-		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, fireRate, false);
+		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, roundsPerMinute, false);
 	}
 }
 
 void ABaseWeapon::StopFire()
 {
-	bIsFiring = false;
+	owner->bIsFiring = false;
 	owner = Cast<ABulletCharacter>(GetOwner());
-	owner->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
-	mesh->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
+	owner->GetMesh()->GetAnimInstance()->StopAllMontages(0.1);
+	//owner->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
+	//mesh->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
 	GetWorld()->GetTimerManager().ClearTimer(fullAutoHandle);
 }
 
@@ -102,6 +107,9 @@ void ABaseWeapon::Reload()
 		UAnimSequence* gunReloadAnim = currentMagAmmo > 0 ? gunReloadPartial : gunReloadEmpty;
 		UAnimMontage* armsReloadAnim = currentMagAmmo > 0 ? armsReloadPartial : armsReloadEmpty;
 
+		//owner->audioComponent->SetSound(reloadSound);
+		//owner->audioComponent->Play();
+
 		owner = Cast<ABulletCharacter>(GetOwner());
 		owner->GetMesh()->GetAnimInstance()->Montage_Play(armsReloadAnim);
 		mesh->PlayAnimation(gunReloadAnim, false);
@@ -110,7 +118,10 @@ void ABaseWeapon::Reload()
 	}
 	else
 	{
-		//deadmans click? Broadcast out of ammo?
+		//owner->audioComponent->SetSound(emptySound);
+		//owner->audioComponent->Play();
+		
+		//Broadcast out of ammo?
 	}
 }
 

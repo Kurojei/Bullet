@@ -31,19 +31,25 @@ public:
 	USkeletalMeshComponent* mesh = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* idle;
+	FName gunName = "";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* fireAnim;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsFireAnim;
+	UAnimSequence* gunFire;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimSequence* gunReloadPartial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimSequence* gunReloadEmpty;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimSequence* armsIdle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimMontage* armsFire;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimMontage* armsFireAim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimMontage* armsReloadPartial;
@@ -55,10 +61,22 @@ public:
 	UAnimMontage* unequip;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	FName gunName = "";
+	UBlendSpace1D* aiming;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UBlendSpace1D* notAiming;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* fireSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* reloadSound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* emptySound;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* swapSound;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool fullAuto = false;
@@ -79,20 +97,16 @@ public:
 	float gunDamage = 20.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* fireSound;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FVector gunLocation;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	FRotator gunRotation;
 
 	class ABulletCharacter* owner;
-
-	bool bIsFiring = false;
 	bool bIsReloading = false;
 	float currentStockAmmo = 90;
 	float currentMagAmmo = 30;
+	float roundsPerMinute = 0;
 
 private:
 	FTimerHandle fullAutoHandle;

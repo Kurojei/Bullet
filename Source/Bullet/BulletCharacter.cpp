@@ -2,6 +2,7 @@
 #include "HealthComponent.h"
 #include "GameFramework/PlayerInput.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include <Kismet/KismetMathLibrary.h>
 
 ABulletCharacter::ABulletCharacter()
 {
@@ -104,13 +105,14 @@ void ABulletCharacter::ToggleADS()
 	}
 	bIsAiming = !bIsAiming;
 	GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? 150.f : 300.f;
+	CameraFovLerp();
 }
 
 void ABulletCharacter::StartSprint()
 {
 	//TODO Only sprint forwards
 	if (bIsAiming) return;
-	if (currentWeapon->bIsFiring) return;
+	if (bIsFiring) return;
 	if (currentWeapon->bIsReloading) return;
 	bIsSprinting = true;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
@@ -139,6 +141,7 @@ void ABulletCharacter::Fire()
 
 void ABulletCharacter::StopFire()
 {
+	if (currentWeapon->bIsReloading) return;
 	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 	currentWeapon->StopFire();
 }
@@ -155,14 +158,15 @@ void ABulletCharacter::SwapWeapon()
 	bool nextGun = guns.Num() > currentWeaponIndex++;
 
 	FTimerHandle swapTimer;
-	GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->unequip);
+	//GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->unequip);
 
 	auto swapAnim = [=]() {
 		currentWeapon->mesh->SetHiddenInGame(true);
 		currentWeapon = guns[nextGun ? currentWeaponIndex++ : currentWeaponIndex];
+		onGunChanged.Broadcast();
+		onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
 		currentWeapon->mesh->SetHiddenInGame(false);
 		currentWeapon->SetOwner(this);
-		onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
 		bIsSwapping = false;
 	};
 

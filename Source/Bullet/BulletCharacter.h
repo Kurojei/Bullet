@@ -9,6 +9,7 @@
 #include "BulletCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, float, currentMagAmmo, float, currentStockAmmo, FName, gunName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGunChanged);
 
 UCLASS()
 class BULLET_API ABulletCharacter : public ACharacter
@@ -42,6 +43,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoChanged onAmmoChanged;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnGunChanged onGunChanged;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float turnRate;
 
@@ -62,6 +66,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bIsAiming = false;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	bool bIsFiring = false;
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CameraFovLerp();
 
 	int currentWeaponIndex = 0;
 	bool bIsSwapping = false;
