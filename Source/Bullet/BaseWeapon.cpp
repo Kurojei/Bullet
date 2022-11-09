@@ -65,6 +65,7 @@ void ABaseWeapon::Fire()
 		if (ABaseCharacter* character = Cast<ABaseCharacter>(outHit.GetActor()))
 		{
 			character->GetHealthComponent()->ApplyDamage(owner, gunDamage);
+			onCharacterHit.Broadcast();
 		}
 	}
 

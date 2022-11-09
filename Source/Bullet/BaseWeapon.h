@@ -11,6 +11,8 @@
 #include "BaseCharacter.h"
 #include "BaseWeapon.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterHit);
+
 UCLASS()
 class BULLET_API ABaseWeapon : public AActor
 {
@@ -30,6 +32,9 @@ private:
 
 //Variables
 public:
+	UPROPERTY(BlueprintAssignable)
+	FOnCharacterHit onCharacterHit;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* mesh = nullptr;
 
