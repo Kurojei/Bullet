@@ -12,6 +12,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, float, currentMagAmmo, float, currentStockAmmo, FName, gunName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGunChanged);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAiming);
 
 UCLASS()
 class BULLET_API ABulletCharacter : public ACharacter
@@ -47,6 +48,9 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnGunChanged onGunChanged;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAiming onAiming;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float turnRate;

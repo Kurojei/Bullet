@@ -15,6 +15,7 @@ ABulletCharacter::ABulletCharacter()
 	cam->SetupAttachment(RootComponent);
 	cam->bUsePawnControlRotation = true;
 	cam->SetWorldLocation(FVector(0, 0, 70));
+	GetMesh()->SetWorldLocation(FVector(0, 0, 100));
 	GetMesh()->SetupAttachment(cam);
 
 	minimapArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MinimapArm"));
