@@ -6,6 +6,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "BaseWeapon.h"
 #include <Components/AudioComponent.h>
+#include "GameFramework/SpringArmComponent.h"
+#include "Components/SceneCaptureComponent2D.h"
 #include "BulletCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, float, currentMagAmmo, float, currentStockAmmo, FName, gunName);
@@ -60,6 +62,15 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<ABaseWeapon*> guns;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USpringArmComponent* minimapArm;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USceneCaptureComponent2D* minimapCapture;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTextureRenderTarget2D* minimap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bIsSprinting = false;

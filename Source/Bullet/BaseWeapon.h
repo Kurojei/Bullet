@@ -6,6 +6,9 @@
 #include <Animation/BlendSpace1D.h>
 #include <Sound/SoundCue.h>
 #include "Zombie.h"
+#include "Niagara/Public/NiagaraComponent.h"
+#include "Niagara/Public/NiagaraFunctionLibrary.h"
+#include "BaseCharacter.h"
 #include "BaseWeapon.generated.h"
 
 UCLASS()
@@ -29,6 +32,9 @@ private:
 public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USkeletalMeshComponent* mesh = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UTexture2D* gunSilouhette;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	FName gunName = "";
@@ -65,6 +71,12 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UBlendSpace1D* notAiming;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UNiagaraSystem* muzzleFlash;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UNiagaraSystem* shellEject;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USoundCue* fireSound;

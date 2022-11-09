@@ -18,7 +18,7 @@ void AZombieSpawner::SpawnZombies()
 		{
 			AZombieSpawn* randSpawnPoint = spawnPoints[FMath::RandRange(0, spawnPoints.Num() - 1)];
 			AZombie* zombie = GetWorld()->SpawnActor<AZombie>(zombieToSpawn, randSpawnPoint->GetActorLocation(), randSpawnPoint->GetActorRotation());
-			zombie->onZombieDeath.AddDynamic(this, &AZombieSpawner::OnZombieDeath);
+			zombie->onCharacterDeath.AddDynamic(this, &AZombieSpawner::OnZombieDeath);
 			amountToSpawn--;
 			//zombie->health = zombieHealth;
 			//zombie->speed = zombieSpeed;

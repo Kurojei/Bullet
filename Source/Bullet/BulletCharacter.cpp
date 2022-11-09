@@ -15,8 +15,15 @@ ABulletCharacter::ABulletCharacter()
 	cam->SetupAttachment(RootComponent);
 	cam->bUsePawnControlRotation = true;
 	cam->SetWorldLocation(FVector(0, 0, 70));
-
 	GetMesh()->SetupAttachment(cam);
+
+	minimapArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MinimapArm"));
+	minimapArm->SetupAttachment(RootComponent);
+	minimapArm->SetRelativeRotation(FRotator(0, 0, -90));
+
+	minimapCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("MinimapCapture"));
+	minimapCapture->SetupAttachment(minimapArm);
+	minimapCapture->TextureTarget = minimap;
 
 	Cast<UCharacterMovementComponent>(GetMovementComponent())->NavAgentProps.bCanCrouch = true;
 	GetCharacterMovement()->MaxWalkSpeed = 250.f;
@@ -114,6 +121,7 @@ void ABulletCharacter::StartSprint()
 	if (bIsAiming) return;
 	if (bIsFiring) return;
 	if (currentWeapon->bIsReloading) return;
+	//if(GetVelocity().Dot(GetActorForwardVector()) != 1) return;
 	bIsSprinting = true;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
@@ -192,7 +200,7 @@ void ABulletCharacter::MoveForward(float value)
 void ABulletCharacter::MoveRight(float value)
 {
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
-	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), value);
+	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), bIsSprinting ? value/2 : value);
 }
 
 void ABulletCharacter::LookRight(float value)

@@ -52,15 +52,19 @@ void ABaseWeapon::Fire()
 	owner->audioComponent->Play();
 
 	//Recoil
+	
 	//Muzzle flash
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), muzzleFlash, mesh->GetSocketLocation("b_gun_muzzleFlash"));
+	
 	//Shell eject
+	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), shellEject, mesh->GetSocketLocation("shellEject"), FRotator(mesh->GetSocketRotation("shellEject")));
 
 	FHitResult outHit;
 	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params))
 	{
-		if (AZombie* zombie = Cast<AZombie>(outHit.GetActor()))
+		if (ABaseCharacter* character = Cast<ABaseCharacter>(outHit.GetActor()))
 		{
-			zombie->GetHealthComponent()->ApplyDamage(owner, gunDamage);
+			character->GetHealthComponent()->ApplyDamage(owner, gunDamage);
 		}
 	}
 
