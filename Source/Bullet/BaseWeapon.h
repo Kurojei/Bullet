@@ -5,6 +5,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include <Animation/BlendSpace1D.h>
 #include <Sound/SoundCue.h>
+#include <Components/AudioComponent.h>
 #include "Zombie.h"
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Niagara/Public/NiagaraFunctionLibrary.h"
@@ -95,6 +96,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USoundCue* swapSound;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USoundCue* hitmarker;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool fullAuto = false;
 
@@ -128,4 +132,5 @@ public:
 private:
 	FTimerHandle fullAutoHandle;
 	FTimerHandle reloadTimer;
+	UAudioComponent* audioComponent;
 };

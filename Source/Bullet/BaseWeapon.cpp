@@ -9,6 +9,9 @@ ABaseWeapon::ABaseWeapon()
 	mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("gunMesh"));
 	RootComponent = mesh;
 	roundsPerMinute = 60 / fireRate;
+
+	audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
+	audioComponent->SetupAttachment(RootComponent);
 }
 
 void ABaseWeapon::BeginPlay()
@@ -65,6 +68,8 @@ void ABaseWeapon::Fire()
 		if (ABaseCharacter* character = Cast<ABaseCharacter>(outHit.GetActor()))
 		{
 			character->GetHealthComponent()->ApplyDamage(owner, gunDamage);
+			audioComponent->SetSound(hitmarker);
+			audioComponent->Play();
 			onCharacterHit.Broadcast();
 		}
 	}
