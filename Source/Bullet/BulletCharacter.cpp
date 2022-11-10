@@ -15,7 +15,7 @@ ABulletCharacter::ABulletCharacter()
 	cam->SetupAttachment(RootComponent);
 	cam->bUsePawnControlRotation = true;
 	cam->SetWorldLocation(FVector(0, 0, 70));
-	GetMesh()->SetupAttachment(cam);
+	GetMesh()->SetupAttachment(RootComponent);
 
 	minimapArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MinimapArm"));
 	minimapArm->SetupAttachment(RootComponent);
@@ -122,7 +122,6 @@ void ABulletCharacter::StartSprint()
 	if (bIsAiming) return;
 	if (bIsFiring) return;
 	if (currentWeapon->bIsReloading) return;
-	//if(GetVelocity().Dot(GetActorForwardVector()) != 1) return;
 	bIsSprinting = true;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
 	GetCharacterMovement()->MaxWalkSpeed = 600.f;
@@ -194,12 +193,14 @@ void ABulletCharacter::SwapWeapon()
 
 void ABulletCharacter::MoveForward(float value)
 {
+	ToggleCameraShake();
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
 	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), value);
 }
 
 void ABulletCharacter::MoveRight(float value)
 {
+	ToggleCameraShake();
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
 	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), bIsSprinting ? value/2 : value);
 }

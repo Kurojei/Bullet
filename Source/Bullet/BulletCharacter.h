@@ -52,6 +52,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAiming onAiming;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UCameraShakeBase* sprintShake;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float turnRate;
 
@@ -87,6 +90,9 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void CameraFovLerp();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void ToggleCameraShake();
 
 	int currentWeaponIndex = 0;
 	bool bIsSwapping = false;
