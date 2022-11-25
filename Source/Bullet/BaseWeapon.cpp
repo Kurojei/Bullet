@@ -85,9 +85,8 @@ void ABaseWeapon::Fire()
 	}
 
 	//Spawn bullet decal
-	//double decalSize = FMath::FRandRange(1.5f, 7.f);
-	//FVector size = (decalSize, decalSize, decalSize);
-	//UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, size, outHit.Location, outHit.ImpactNormal.Rotation(), 100.f);
+	float decalSize = FMath::FRandRange(1.5f, 7.f);
+	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, FVector(decalSize, decalSize, decalSize), outHit.Location, outHit.ImpactNormal.Rotation() * -1, 100.f);
 
 
 	if (fullAuto)

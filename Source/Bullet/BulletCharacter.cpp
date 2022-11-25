@@ -130,7 +130,7 @@ void ABulletCharacter::StopSprint()
 	if (currentWeapon->bIsReloading) return;
 	bIsSprinting = false;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	GetCharacterMovement()->MaxWalkSpeed = 4.f;
 }
 
 void ABulletCharacter::Fire()
@@ -204,7 +204,7 @@ void ABulletCharacter::MoveForward(float value)
 void ABulletCharacter::MoveRight(float value)
 {
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
-	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), bIsSprinting ? value/2 : value);
+	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), value);
 }
 
 void ABulletCharacter::LookRight(float value)
