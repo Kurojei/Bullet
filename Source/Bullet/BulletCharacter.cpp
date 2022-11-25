@@ -8,27 +8,23 @@ ABulletCharacter::ABulletCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
+	springArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
+	springArm->SetupAttachment(GetMesh(), FName("CameraSocket"));
+	springArm->TargetArmLength = 0;
+
+
+	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Cam"));
+	cam->SetupAttachment(springArm, FName("SpringEndpoint"));
+
 	audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	audioComponent->SetupAttachment(RootComponent);
 
-	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
-	cam->SetupAttachment(RootComponent);
-	cam->bUsePawnControlRotation = true;
-	cam->SetWorldLocation(FVector(0, 0, 70));
 	GetMesh()->SetupAttachment(RootComponent);
 
-	minimapArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("MinimapArm"));
-	minimapArm->SetupAttachment(RootComponent);
-	minimapArm->SetRelativeRotation(FRotator(0, 0, -90));
-
-	minimapCapture = CreateDefaultSubobject<USceneCaptureComponent2D>(TEXT("MinimapCapture"));
-	minimapCapture->SetupAttachment(minimapArm);
-	minimapCapture->TextureTarget = minimap;
-
-	Cast<UCharacterMovementComponent>(GetMovementComponent())->NavAgentProps.bCanCrouch = true;
-	GetCharacterMovement()->MaxWalkSpeed = 250.f;
-
 	healthComponent = CreateDefaultSubobject<UHealthComponent>(TEXT("HealthComponent"));
+
+	bulletSpawnPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("BulletSpawnPoint"));
+	bulletSpawnPoint->SetupAttachment(GetMesh());
 }
 
 void ABulletCharacter::BeginPlay()
@@ -40,7 +36,6 @@ void ABulletCharacter::BeginPlay()
 void ABulletCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
 
 }
 
@@ -58,8 +53,8 @@ void InitializeInputBindings()
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::A, -1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::D, 1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("MoveRight", EKeys::Gamepad_LeftX, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookRight", EKeys::Gamepad_RightX, 1.f));
-		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookRight", EKeys::MouseX, 1.f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookRight", EKeys::Gamepad_RightX, 0.7f));
+		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookRight", EKeys::MouseX, 0.7f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookUp", EKeys::Gamepad_RightY, 1.f));
 		UPlayerInput::AddEngineDefinedAxisMapping(FInputAxisKeyMapping("LookUp", EKeys::MouseY, -1.f));
 
@@ -112,13 +107,14 @@ void ABulletCharacter::ToggleADS()
 	}
 	bIsAiming = !bIsAiming;
 	onAiming.Broadcast();
-	GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? 150.f : 300.f;
+	//GetCharacterMovement()->MaxWalkSpeed = bIsAiming ? 150.f : 300.f;
 	CameraFovLerp();
 }
 
 void ABulletCharacter::StartSprint()
 {
 	//TODO Only sprint forwards
+	if (!currentWeapon) return;
 	if (bIsAiming) return;
 	if (bIsFiring) return;
 	if (currentWeapon->bIsReloading) return;
@@ -129,6 +125,7 @@ void ABulletCharacter::StartSprint()
 
 void ABulletCharacter::StopSprint()
 {
+	if (!currentWeapon) return;
 	if (bIsAiming) return;
 	if (currentWeapon->bIsReloading) return;
 	bIsSprinting = false;
@@ -138,30 +135,37 @@ void ABulletCharacter::StopSprint()
 
 void ABulletCharacter::Fire()
 {
+	if (!currentWeapon) return;
 	if (currentWeapon->bIsReloading) return;
 	if (bIsSprinting)
 	{
 		StopSprint();
 	}
-	GetCharacterMovement()->MaxWalkSpeed = 150.f; // only slow if has bullets
+	//GetCharacterMovement()->MaxWalkSpeed = 150.f; // only slow if has bullets
 	currentWeapon->Fire();
 }
 
 void ABulletCharacter::StopFire()
 {
+	if (!currentWeapon) return;
 	if (currentWeapon->bIsReloading) return;
-	GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	currentWeapon->StopFire();
+	//GetCharacterMovement()->MaxWalkSpeed = 300.f;
+	if (currentWeapon->fullAuto)
+	{
+		currentWeapon->StopFire();
+	}
 }
 
 void ABulletCharacter::Reload()
 {
+	if (!currentWeapon) return;
 	StopSprint();
 	currentWeapon->Reload();
 }
 
 void ABulletCharacter::SwapWeapon()
 {
+	if (!currentWeapon) return;
 	if (bIsSwapping) return;
 	bool nextGun = guns.Num() > currentWeaponIndex++;
 
@@ -169,11 +173,11 @@ void ABulletCharacter::SwapWeapon()
 	//GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->unequip);
 
 	auto swapAnim = [=]() {
-		currentWeapon->mesh->SetHiddenInGame(true);
+		//currentWeapon->mesh->SetHiddenInGame(true);
 		currentWeapon = guns[nextGun ? currentWeaponIndex++ : currentWeaponIndex];
 		onGunChanged.Broadcast();
 		onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
-		currentWeapon->mesh->SetHiddenInGame(false);
+		//currentWeapon->mesh->SetHiddenInGame(false);
 		currentWeapon->SetOwner(this);
 		bIsSwapping = false;
 	};
@@ -193,14 +197,12 @@ void ABulletCharacter::SwapWeapon()
 
 void ABulletCharacter::MoveForward(float value)
 {
-	ToggleCameraShake();
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
 	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::X), value);
 }
 
 void ABulletCharacter::MoveRight(float value)
 {
-	ToggleCameraShake();
 	FRotator const ControlSpaceRot = Controller->GetControlRotation();
 	AddMovementInput(FRotationMatrix(ControlSpaceRot).GetScaledAxis(EAxis::Y), bIsSprinting ? value/2 : value);
 }
@@ -212,5 +214,5 @@ void ABulletCharacter::LookRight(float value)
 
 void ABulletCharacter::LookUp(float value)
 {
-	AddControllerPitchInput(value * lookRate * GetWorld()->GetDeltaSeconds());
+	GetMesh()->AddRelativeRotation(FRotator(-value * lookRate * GetWorld()->GetDeltaSeconds(), 0, 0));
 }

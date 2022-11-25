@@ -8,6 +8,7 @@
 #include <Components/AudioComponent.h>
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/SceneCaptureComponent2D.h"
+#include "Components/ArrowComponent.h"
 #include "BulletCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, float, currentMagAmmo, float, currentStockAmmo, FName, gunName);
@@ -61,23 +62,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float lookRate;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UCameraComponent* cam;
-
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	ABaseWeapon* currentWeapon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	TArray<ABaseWeapon*> guns;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USpringArmComponent* minimapArm;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USceneCaptureComponent2D* minimapCapture;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	UTextureRenderTarget2D* minimap;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bIsSprinting = false;
@@ -88,15 +77,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bIsFiring = false;
 
-	UFUNCTION(BlueprintImplementableEvent)
-	void CameraFovLerp();
+	UPROPERTY(BlueprintReadOnly)
+	UCameraComponent* cam;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USpringArmComponent* springArm;
 
 	UFUNCTION(BlueprintImplementableEvent)
-	void ToggleCameraShake();
+	void CameraFovLerp();
 
 	int currentWeaponIndex = 0;
 	bool bIsSwapping = false;
 	UAudioComponent* audioComponent;
+	UArrowComponent* bulletSpawnPoint;
 
 private:
 	class UHealthComponent* healthComponent;

@@ -2,13 +2,20 @@
 #include "HealthComponent.h"
 #include "BulletCharacter.h"
 #include <DrawDebugHelpers.h>
+#include "Kismet/GameplayStatics.h"
 
 ABaseWeapon::ABaseWeapon()
 {
 	PrimaryActorTick.bCanEverTick = true;
-	mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("gunMesh"));
-	RootComponent = mesh;
-	roundsPerMinute = 60 / fireRate;
+
+	gunMain = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("GunMain"));
+	gunMain->SetupAttachment(RootComponent);
+
+	slider = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Slider"));
+	slider->SetupAttachment(RootComponent);
+
+	magazine = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Magazine"));
+	magazine->SetupAttachment(RootComponent);
 
 	audioComponent = CreateDefaultSubobject<UAudioComponent>(TEXT("AudioComponent"));
 	audioComponent->SetupAttachment(RootComponent);
@@ -17,7 +24,6 @@ ABaseWeapon::ABaseWeapon()
 void ABaseWeapon::BeginPlay()
 {
 	Super::BeginPlay();
-	mesh->PlayAnimation(armsIdle, true);
 }
 
 void ABaseWeapon::Tick(float DeltaTime)
@@ -34,6 +40,7 @@ void ABaseWeapon::Fire()
 	}
 
 	owner = Cast<ABulletCharacter>(GetOwner());
+	if (owner->bIsFiring) return;
 	if (!owner->bIsFiring) {
 		owner->bIsFiring = true;
 	}
@@ -41,9 +48,8 @@ void ABaseWeapon::Fire()
 	currentMagAmmo--;
 
 	owner->onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo, gunName);
-	mesh->PlayAnimation(gunFire, false);
 
-	UAnimMontage* gunFireAnim = owner->bIsAiming ? armsFireAim : armsFire;
+	UAnimMontage* gunFireAnim = owner->bIsAiming ? fireAim : fire;
 	owner->GetMesh()->GetAnimInstance()->Montage_Play(gunFireAnim);
 	  
 	const FVector start = owner->cam->GetSocketLocation("None");
@@ -51,16 +57,13 @@ void ABaseWeapon::Fire()
 	FCollisionQueryParams params;
 	params.AddIgnoredActor(owner);
 
-	owner->audioComponent->SetSound(fireSound);
-	owner->audioComponent->Play();
-
 	//Recoil
 	
 	//Muzzle flash
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), muzzleFlash, mesh->GetSocketLocation("b_gun_muzzleFlash"));
+	//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), muzzleFlash, mesh->GetSocketLocation("b_gun_muzzleFlash"));
 	
 	//Shell eject
-	UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), shellEject, mesh->GetSocketLocation("shellEject"), FRotator(mesh->GetSocketRotation("shellEject")));
+	//UNiagaraFunctionLibrary::SpawnSystemAtLocation(GetWorld(), shellEject, mesh->GetSocketLocation("shellEject"), FRotator(mesh->GetSocketRotation("shellEject")));
 
 	FHitResult outHit;
 	if (GetWorld()->LineTraceSingleByChannel(outHit, start, end, ECC_Visibility, params))
@@ -72,11 +75,28 @@ void ABaseWeapon::Fire()
 			audioComponent->Play();
 			onCharacterHit.Broadcast();
 		}
+		else if (ATarget* target = Cast<ATarget>(outHit.GetActor()))
+		{
+			target->Hit();
+			audioComponent->SetSound(hitmarker);
+			audioComponent->Play();
+			onCharacterHit.Broadcast();
+		}
 	}
+
+	//Spawn bullet decal
+	//double decalSize = FMath::FRandRange(1.5f, 7.f);
+	//FVector size = (decalSize, decalSize, decalSize);
+	//UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, size, outHit.Location, outHit.ImpactNormal.Rotation(), 100.f);
+
 
 	if (fullAuto)
 	{
-		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, roundsPerMinute, false);
+		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, fireRate, false);
+	}
+	else
+	{
+		GetWorld()->GetTimerManager().SetTimer(singleShotHandle, this, &ABaseWeapon::StopFire, fireRate, false);
 	}
 }
 
@@ -85,9 +105,8 @@ void ABaseWeapon::StopFire()
 	owner->bIsFiring = false;
 	owner = Cast<ABulletCharacter>(GetOwner());
 	owner->GetMesh()->GetAnimInstance()->StopAllMontages(0.1);
-	//owner->GetMesh()->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
-	//mesh->GetAnimInstance()->Montage_SetNextSection(FName("Loop"), FName("Tail"));
 	GetWorld()->GetTimerManager().ClearTimer(fullAutoHandle);
+	GetWorld()->GetTimerManager().ClearTimer(singleShotHandle);
 }
 
 void ABaseWeapon::Reload()
@@ -114,17 +133,12 @@ void ABaseWeapon::Reload()
 			StopReloading();
 		};
 
-		UAnimSequence* gunReloadAnim = currentMagAmmo > 0 ? gunReloadPartial : gunReloadEmpty;
-		UAnimMontage* armsReloadAnim = currentMagAmmo > 0 ? armsReloadPartial : armsReloadEmpty;
-
-		//owner->audioComponent->SetSound(reloadSound);
-		//owner->audioComponent->Play();
+		UAnimMontage* reloadAnim = currentMagAmmo > 0 ? reloadPartial : reloadEmpty;
 
 		owner = Cast<ABulletCharacter>(GetOwner());
-		owner->GetMesh()->GetAnimInstance()->Montage_Play(armsReloadAnim);
-		mesh->PlayAnimation(gunReloadAnim, false);
+		owner->GetMesh()->GetAnimInstance()->Montage_Play(reloadAnim);
 
-		GetWorld()->GetTimerManager().SetTimer(reloadTimer, refreshAmmoUI, gunReloadAnim->GetPlayLength(), false);
+		GetWorld()->GetTimerManager().SetTimer(reloadTimer, refreshAmmoUI, reloadAnim->GetPlayLength(), false);
 	}
 	else
 	{

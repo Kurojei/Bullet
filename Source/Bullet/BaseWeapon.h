@@ -10,6 +10,7 @@
 #include "Niagara/Public/NiagaraComponent.h"
 #include "Niagara/Public/NiagaraFunctionLibrary.h"
 #include "BaseCharacter.h"
+#include "Target.h"
 #include "BaseWeapon.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCharacterHit);
@@ -37,7 +38,16 @@ public:
 	FOnCharacterHit onCharacterHit;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USkeletalMeshComponent* mesh = nullptr;
+	UStaticMeshComponent* gunMain;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UStaticMeshComponent* slider;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UStaticMeshComponent* magazine;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UMaterialInterface* bulletDecal;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UTexture2D* gunSilouhette;
@@ -46,28 +56,16 @@ public:
 	FName gunName = "";
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* gunFire;
+	UAnimMontage* reloadPartial;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* gunReloadPartial;
+	UAnimMontage* reloadEmpty;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* gunReloadEmpty;
+	UAnimMontage* fire;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimSequence* armsIdle;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsFire;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsFireAim;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsReloadPartial;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UAnimMontage* armsReloadEmpty;
+	UAnimMontage* fireAim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimMontage* unequip;
@@ -85,31 +83,19 @@ public:
 	UNiagaraSystem* shellEject;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* fireSound;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* reloadSound;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* emptySound;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	USoundCue* swapSound;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USoundCue* hitmarker;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	bool fullAuto = false;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float fireRate = 500;
+	float fireRate = 0.2;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float maxStockAmmo = 90;
+	float maxStockAmmo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	float maxMagAmmo = 30;
+	float maxMagAmmo;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float gunRange = 20000.f;
@@ -117,20 +103,19 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float gunDamage = 20.f;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FVector gunLocation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float currentStockAmmo = 90;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
-	FRotator gunRotation;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	float currentMagAmmo = 30;
+
 
 	class ABulletCharacter* owner;
 	bool bIsReloading = false;
-	float currentStockAmmo = 90;
-	float currentMagAmmo = 30;
-	float roundsPerMinute = 0;
 
 private:
 	FTimerHandle fullAutoHandle;
+	FTimerHandle singleShotHandle;
 	FTimerHandle reloadTimer;
 	UAudioComponent* audioComponent;
 };
