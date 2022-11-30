@@ -130,7 +130,7 @@ void ABulletCharacter::StopSprint()
 	if (currentWeapon->bIsReloading) return;
 	bIsSprinting = false;
 	GetMesh()->GetAnimInstance()->StopAllMontages(0);
-	GetCharacterMovement()->MaxWalkSpeed = 4.f;
+	GetCharacterMovement()->MaxWalkSpeed = 300.f;
 }
 
 void ABulletCharacter::Fire()
@@ -142,6 +142,7 @@ void ABulletCharacter::Fire()
 		StopSprint();
 	}
 	//GetCharacterMovement()->MaxWalkSpeed = 150.f; // only slow if has bullets
+	PlayMuzzleFlash();
 	currentWeapon->Fire();
 }
 

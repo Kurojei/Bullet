@@ -109,7 +109,6 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float currentMagAmmo = 30;
 
-
 	class ABulletCharacter* owner;
 	bool bIsReloading = false;
 

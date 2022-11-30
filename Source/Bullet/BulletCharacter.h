@@ -86,6 +86,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void CameraFovLerp();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void PlayMuzzleFlash();
+
 	int currentWeaponIndex = 0;
 	bool bIsSwapping = false;
 	UAudioComponent* audioComponent;
