@@ -30,4 +30,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float maxDelay = 15.f;
+
+	bool bHit = false;
 };

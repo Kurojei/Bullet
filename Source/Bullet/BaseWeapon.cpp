@@ -72,10 +72,13 @@ void ABaseWeapon::Fire()
 		}
 		else if (ATarget* target = Cast<ATarget>(outHit.GetActor()))
 		{
-			target->Hit();
-			audioComponent->SetSound(hitmarker);
-			audioComponent->Play();
-			onCharacterHit.Broadcast();
+			if (!target->bHit)
+			{
+				target->Hit();
+				audioComponent->SetSound(hitmarker);
+				audioComponent->Play();
+				onCharacterHit.Broadcast();
+			}
 		}
 	}
 

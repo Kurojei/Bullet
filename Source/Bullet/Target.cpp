@@ -23,6 +23,7 @@ void ATarget::Tick(float DeltaTime)
 
 void ATarget::Hit()
 {
+	bHit = true;
 	target->PlayAnimation(targetDown, false);
 
 	float delay = FMath::FRandRange(minDelay, maxDelay);
@@ -33,5 +34,6 @@ void ATarget::Hit()
 
 void ATarget::Activate()
 {
+	bHit = false;
 	target->PlayAnimation(targetUp, false);
 }
