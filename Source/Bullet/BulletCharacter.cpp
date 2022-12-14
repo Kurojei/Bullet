@@ -12,7 +12,6 @@ ABulletCharacter::ABulletCharacter()
 	springArm->SetupAttachment(GetMesh(), FName("CameraSocket"));
 	springArm->TargetArmLength = 0;
 
-
 	cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Cam"));
 	cam->SetupAttachment(springArm, FName("SpringEndpoint"));
 
@@ -151,10 +150,7 @@ void ABulletCharacter::StopFire()
 	if (!currentWeapon) return;
 	if (currentWeapon->bIsReloading) return;
 	//GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	if (currentWeapon->fullAuto)
-	{
-		currentWeapon->StopFire();
-	}
+	currentWeapon->StopFire();
 }
 
 void ABulletCharacter::Reload()
@@ -166,34 +162,34 @@ void ABulletCharacter::Reload()
 
 void ABulletCharacter::SwapWeapon()
 {
+	if (!currentWeapon->unequip || !currentWeapon->equip) return;
 	if (!currentWeapon) return;
 	if (bIsSwapping) return;
-	bool nextGun = guns.Num() > currentWeaponIndex++;
 
-	FTimerHandle swapTimer;
+	//FTimerHandle swapTimer;
 	//GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->unequip);
-
-	auto swapAnim = [=]() {
-		//currentWeapon->mesh->SetHiddenInGame(true);
-		currentWeapon = guns[nextGun ? currentWeaponIndex++ : currentWeaponIndex];
-		onGunChanged.Broadcast();
-		onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
-		//currentWeapon->mesh->SetHiddenInGame(false);
-		currentWeapon->SetOwner(this);
-		bIsSwapping = false;
-	};
-
-	if (nextGun) //Is there a next gun?
-	{
-		bIsSwapping = true;
-		GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, 0.7f, false);
-	}
-	else
-	{
-		bIsSwapping = true;
-		currentWeaponIndex = 0;
-		GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, 0.7f, false);
-	}
+	//
+	//auto swapAnim = [=]() {
+	//	//currentWeapon->SetOwner(this);
+	//	currentWeapon = secondWeapon;
+	//	onGunChanged.Broadcast();
+	//	onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
+	//	GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->equip);
+	//
+	//	bIsSwapping = false;
+	//};
+	//
+	//if (secondWeapon) //Is there a next gun?
+	//{
+	//	bIsSwapping = true;
+	//	GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, currentWeapon->unequip->GetPlayLength(), false);
+	//}
+	//else
+	//{
+	//	bIsSwapping = true;
+	//	currentWeaponIndex = 0;
+	//	GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, 0.7f, false);
+	//}
 }
 
 void ABulletCharacter::MoveForward(float value)

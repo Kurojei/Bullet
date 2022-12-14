@@ -62,11 +62,11 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	float lookRate;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(BlueprintReadWrite)
 	ABaseWeapon* currentWeapon;
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	TArray<ABaseWeapon*> guns;
+	UPROPERTY(BlueprintReadWrite)
+	ABaseWeapon* secondWeapon;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	bool bIsSprinting = false;

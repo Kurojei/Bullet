@@ -38,6 +38,12 @@ public:
 	FOnCharacterHit onCharacterHit;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	USkeletalMesh* armMesh;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
+	UClass* gunAnimBP;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	UStaticMeshComponent* gunMain;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -68,6 +74,9 @@ public:
 	UAnimMontage* fireAim;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UAnimMontage* equip;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UAnimMontage* unequip;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
@@ -75,12 +84,6 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
 	UBlendSpace1D* notAiming;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UNiagaraSystem* muzzleFlash;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
-	UNiagaraSystem* shellEject;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	USoundCue* hitmarker;

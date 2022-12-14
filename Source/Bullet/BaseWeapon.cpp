@@ -40,7 +40,7 @@ void ABaseWeapon::Fire()
 	}
 
 	owner = Cast<ABulletCharacter>(GetOwner());
-	if (owner->bIsFiring) return;
+	//if (owner->bIsFiring) return;
 	if (!owner->bIsFiring) {
 		owner->bIsFiring = true;
 	}
