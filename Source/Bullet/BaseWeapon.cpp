@@ -34,19 +34,21 @@ void ABaseWeapon::Tick(float DeltaTime)
 
 void ABaseWeapon::Fire()
 {
-	if (currentMagAmmo == 0) {
+	if (currentMagAmmo == 0) 
+	{
 		Reload();
 		return;
 	}
 
 	owner = Cast<ABulletCharacter>(GetOwner());
-	//if (owner->bIsFiring) return;
-	if (!owner->bIsFiring) {
+	if (!owner->bIsFiring) 
+	{
 		owner->bIsFiring = true;
 	}
 
 	currentMagAmmo--;
 
+	owner->PlayMuzzleFlash();
 	owner->onAmmoChanged.Broadcast(currentMagAmmo, currentStockAmmo, gunName);
 
 	UAnimMontage* gunFireAnim = owner->bIsAiming ? fireAim : fire;
@@ -86,7 +88,6 @@ void ABaseWeapon::Fire()
 	float decalSize = FMath::FRandRange(1.5f, 7.f);
 	UGameplayStatics::SpawnDecalAtLocation(GetWorld(), bulletDecal, FVector(decalSize, decalSize, decalSize), outHit.Location, outHit.ImpactNormal.Rotation() * -1, 100.f);
 
-
 	if (fullAuto)
 	{
 		GetWorld()->GetTimerManager().SetTimer(fullAutoHandle, this, &ABaseWeapon::Fire, fireRate, false);
@@ -99,9 +100,10 @@ void ABaseWeapon::Fire()
 
 void ABaseWeapon::StopFire()
 {
-	owner->bIsFiring = false;
 	owner = Cast<ABulletCharacter>(GetOwner());
 	owner->GetMesh()->GetAnimInstance()->StopAllMontages(0.1);
+	owner->bIsFiring = false;
+	GetWorld()->GetTimerManager().ClearTimer(cooldownHandle);
 	GetWorld()->GetTimerManager().ClearTimer(fullAutoHandle);
 	GetWorld()->GetTimerManager().ClearTimer(singleShotHandle);
 }
@@ -135,7 +137,7 @@ void ABaseWeapon::Reload()
 		owner = Cast<ABulletCharacter>(GetOwner());
 		owner->GetMesh()->GetAnimInstance()->Montage_Play(reloadAnim);
 
-		GetWorld()->GetTimerManager().SetTimer(reloadTimer, refreshAmmoUI, reloadAnim->GetPlayLength(), false);
+		GetWorld()->GetTimerManager().SetTimer(reloadHandle, refreshAmmoUI, reloadAnim->GetPlayLength(), false);
 	}
 	else
 	{
@@ -149,5 +151,5 @@ void ABaseWeapon::Reload()
 void ABaseWeapon::StopReloading()
 {
 	bIsReloading = false;
-	GetWorld()->GetTimerManager().ClearTimer(reloadTimer);
+	GetWorld()->GetTimerManager().ClearTimer(reloadHandle);
 }

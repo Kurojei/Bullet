@@ -136,12 +136,12 @@ void ABulletCharacter::Fire()
 {
 	if (!currentWeapon) return;
 	if (currentWeapon->bIsReloading) return;
+	if(bIsFiring) return;
 	if (bIsSprinting)
 	{
 		StopSprint();
 	}
 	//GetCharacterMovement()->MaxWalkSpeed = 150.f; // only slow if has bullets
-	PlayMuzzleFlash();
 	currentWeapon->Fire();
 }
 
@@ -150,7 +150,10 @@ void ABulletCharacter::StopFire()
 	if (!currentWeapon) return;
 	if (currentWeapon->bIsReloading) return;
 	//GetCharacterMovement()->MaxWalkSpeed = 300.f;
-	currentWeapon->StopFire();
+	if (currentWeapon->fullAuto)
+	{
+		currentWeapon->StopFire();
+	}
 }
 
 void ABulletCharacter::Reload()

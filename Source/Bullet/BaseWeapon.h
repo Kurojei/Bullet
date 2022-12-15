@@ -26,6 +26,7 @@ public:
 	void Fire();
 	void Reload();
 	void StopFire();
+	void EnableFire();
 	void StopReloading();
 
 private:
@@ -118,6 +119,7 @@ public:
 private:
 	FTimerHandle fullAutoHandle;
 	FTimerHandle singleShotHandle;
-	FTimerHandle reloadTimer;
+	FTimerHandle reloadHandle;
+	FTimerHandle cooldownHandle;
 	UAudioComponent* audioComponent;
 };
