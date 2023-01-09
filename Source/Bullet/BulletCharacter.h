@@ -12,7 +12,6 @@
 #include "BulletCharacter.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAmmoChanged, float, currentMagAmmo, float, currentStockAmmo, FName, gunName);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGunChanged);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAiming);
 
 UCLASS()
@@ -39,6 +38,7 @@ private:
 	void LookUp(float value);
 	void ToggleADS();
 	void SwapWeapon();
+	void StopSwapping();
 	void StartSprint();
 	void StopSprint();
 
@@ -46,9 +46,6 @@ private:
 public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAmmoChanged onAmmoChanged;
-
-	UPROPERTY(BlueprintAssignable)
-	FOnGunChanged onGunChanged;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAiming onAiming;
@@ -64,6 +61,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	ABaseWeapon* currentWeapon;
+
+	UPROPERTY(BlueprintReadWrite)
+	ABaseWeapon* firstWeapon;
 
 	UPROPERTY(BlueprintReadWrite)
 	ABaseWeapon* secondWeapon;
@@ -89,12 +89,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void PlayMuzzleFlash();
 
-	int currentWeaponIndex = 0;
 	bool bIsSwapping = false;
 	UAudioComponent* audioComponent;
 	UArrowComponent* bulletSpawnPoint;
 
 private:
 	class UHealthComponent* healthComponent;
+	FTimerHandle swapTimer;
 };
 

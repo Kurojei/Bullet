@@ -165,34 +165,27 @@ void ABulletCharacter::Reload()
 
 void ABulletCharacter::SwapWeapon()
 {
-	if (!currentWeapon->unequip || !currentWeapon->equip) return;
 	if (!currentWeapon) return;
+	if (!secondWeapon) return;
+	if (!currentWeapon->unequip || !currentWeapon->equip) return;
+	if (currentWeapon->bIsReloading) return;
 	if (bIsSwapping) return;
 
-	//FTimerHandle swapTimer;
-	//GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->unequip);
-	//
-	//auto swapAnim = [=]() {
-	//	//currentWeapon->SetOwner(this);
-	//	currentWeapon = secondWeapon;
-	//	onGunChanged.Broadcast();
-	//	onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
-	//	GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->equip);
-	//
-	//	bIsSwapping = false;
-	//};
-	//
-	//if (secondWeapon) //Is there a next gun?
-	//{
-	//	bIsSwapping = true;
-	//	GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, currentWeapon->unequip->GetPlayLength(), false);
-	//}
-	//else
-	//{
-	//	bIsSwapping = true;
-	//	currentWeaponIndex = 0;
-	//	GetWorld()->GetTimerManager().SetTimer(swapTimer, swapAnim, 0.7f, false);
-	//}
+	bIsSwapping = true;
+	currentWeapon->SetActorHiddenInGame(true);
+	currentWeapon = currentWeapon == firstWeapon ? secondWeapon : firstWeapon;
+	currentWeapon->SetActorHiddenInGame(false);
+	GetMesh()->SetAnimInstanceClass(currentWeapon->gunAnimBP);
+	GetMesh()->SetSkeletalMesh(currentWeapon->armMesh);
+	GetMesh()->GetAnimInstance()->Montage_Play(currentWeapon->equip);
+	GetWorld()->GetTimerManager().SetTimer(swapTimer, this, &ABulletCharacter::StopSwapping, currentWeapon->equip->GetPlayLength());
+	onAmmoChanged.Broadcast(currentWeapon->currentMagAmmo, currentWeapon->currentStockAmmo, currentWeapon->gunName);
+}
+
+void ABulletCharacter::StopSwapping()
+{
+	bIsSwapping = false;
+	GetWorld()->GetTimerManager().ClearTimer(swapTimer);
 }
 
 void ABulletCharacter::MoveForward(float value)
